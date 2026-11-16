@@ -1,0 +1,66 @@
+#!/system/bin/sh
+# 98cpu_boost - Performance Turbo Optimization for Note 4 Snapdragon 805
+# 100% No Root, boots via sysinit (init.d)
+
+log -p i -t cpu_boost "Initializing CPU Turbo Booster..."
+
+apply_turbo() {
+    # 1. Stop mpdecision to prevent aggressive core parking (unplugging cores 2 and 3)
+    stop mpdecision 2>/dev/null
+
+    # 2. Force all 4 CPU cores online
+    for i in 0 1 2 3; do
+        if [ -f "/sys/devices/system/cpu/cpu$i/online" ]; then
+            echo 1 > "/sys/devices/system/cpu/cpu$i/online" 2>/dev/null
+        fi
+    done
+
+    # 3. Set CPU Frequencies: Min 1.19 GHz, Max 2.65 GHz on all online cores
+    for i in 0 1 2 3; do
+        if [ -d "/sys/devices/system/cpu/cpu$i/cpufreq" ]; then
+            echo "interactive" > "/sys/devices/system/cpu/cpu$i/cpufreq/scaling_governor" 2>/dev/null
+            echo 1190400 > "/sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq" 2>/dev/null
+            echo 2649600 > "/sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq" 2>/dev/null
+        fi
+    done
+
+    # 4. Interactive Governor responsiveness tuning
+    GOV="/sys/devices/system/cpu/cpufreq/interactive"
+    if [ -d "$GOV" ]; then
+        echo 2265600 > "$GOV/hispeed_freq" 2>/dev/null
+        echo 65 > "$GOV/go_hispeed_load" 2>/dev/null
+        echo "20000 1190400:40000 2265600:60000" > "$GOV/above_hispeed_delay" 2>/dev/null
+        echo "70 1190400:65 1728000:75 2265600:85" > "$GOV/target_loads" 2>/dev/null
+        echo 40000 > "$GOV/min_sample_time" 2>/dev/null
+        echo 20000 > "$GOV/timer_rate" 2>/dev/null
+        echo 1 > "$GOV/io_is_busy" 2>/dev/null
+    fi
+
+    # 5. GPU Tuning (Adreno 420): raise minimum power level and frequency
+    if [ -d "/sys/class/kgsl/kgsl-3d0" ]; then
+        echo 3 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel 2>/dev/null
+        echo 389000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 2>/dev/null
+    fi
+
+    # 6. Storage & I/O read-ahead
+    for queue in /sys/block/mmcblk*/queue; do
+        echo 512 > "$queue/read_ahead_kb" 2>/dev/null
+    done
+
+    # 7. Virtual memory responsiveness
+    echo 40 > /proc/sys/vm/swappiness 2>/dev/null
+    echo 100 > /proc/sys/vm/vfs_cache_pressure 2>/dev/null
+
+    log -p i -t cpu_boost "CPU Turbo Booster applied: 4 cores online, min 1.19GHz, hispeed 2.26GHz."
+}
+
+# Apply immediately
+apply_turbo
+
+# Background loop: re-apply after full boot to override any late boot scripts
+(
+    sleep 15
+    apply_turbo
+    sleep 30
+    apply_turbo
+) &

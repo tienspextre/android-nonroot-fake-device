@@ -1,0 +1,10 @@
+devid_pro/bin/
+devid_pro/build/
+devid_pro/dist/
+devid_pro/smali/
+devid_pro/classes.dex
+devid_pro/*.apk
+*.idsig
+*.orig
+*.bak
+.DS_Store

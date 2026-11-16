@@ -1,0 +1,11 @@
+version: 2.9.3
+apkFileName: DeviceIDManager.apk
+isFrameworkApk: false
+usesFramework:
+  ids:
+  - 1
+sdkInfo:
+  minSdkVersion: '21'
+  targetSdkVersion: '28'
+packageInfo:
+  forcedPackageId: '127'
