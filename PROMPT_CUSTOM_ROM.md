@@ -48,6 +48,9 @@ Tôi đang kết nối một thiết bị Android mới qua ADB và muốn bạn
    - Liệt kê các app nền ngốn RAM (như `com.google.android.googlequicksearchbox`, `setupwizard`, `feedback`...) và dùng `pm disable-user --user 0` để giải phóng RAM.
    - Chạy `cmd package compile -m speed -f` cho `SystemUI`, `Launcher`, `Settings` và `com.sec.deviceid`.
 
+5. **Cài đặt ứng dụng mạng bắt buộc (`v2rayNG`):**
+   - Tải bản phát hành mới nhất của **v2rayNG** từ GitHub (`2dust/v2rayNG/releases/latest`) khớp với `ro.product.cpu.abi` của máy (`armeabi-v7a` hoặc `arm64-v8a`) và cài đặt qua `adb install -r`.
+
 #### Bước D: Kiểm tra & Bàn giao
-- Xác minh `which su` không tồn tại, Fake Android ID & IMEI đổi được tức thì trong `About Phone`, Swap/zRAM hoạt động, và lưu lại toàn bộ quy trình vào một file hướng dẫn `.md` mới trong `/home/vorza/note4_project_backup/`.
+- Xác minh `which su` không tồn tại (nếu là ROM GSI `-bvS`, xóa `/system/app/me.phh.superuser` và tạo `/system/phh/secure`), `v2rayNG` đã cài sẵn, Fake Android ID & IMEI đổi được tức thì trong `About Phone`, Swap/zRAM hoạt động, và lưu lại toàn bộ quy trình vào một file hướng dẫn `.md` mới.
 ```
